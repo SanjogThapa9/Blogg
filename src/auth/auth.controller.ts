@@ -1,4 +1,4 @@
-// src/auth/auth.controller.ts
+
 import { Controller, Post, Body, UseGuards, HttpException, Req, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dto/register.dto';
@@ -12,7 +12,7 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('register')
-  async register(@Body() payload: RegisterUserDto) {  // <-- changed DTO here
+  async register(@Body() payload: RegisterUserDto) {  
     const user = await this.authService.register(payload);
     return { message: 'User registered successfully', user };
   }
@@ -31,5 +31,11 @@ export class AuthController {
   @UseGuards(JwtAuthGaurd)
   status(@Req() req: Request) {
     return { user: req.user };
+  }
+
+  @Post('logout')
+  @UseGuards(JwtAuthGaurd)
+  logout(@Req() req: Request) {
+    return { message: 'Logged out successfully.' };
   }
 }
