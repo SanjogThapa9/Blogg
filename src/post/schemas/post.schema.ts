@@ -17,6 +17,9 @@ export class Post {
 
   @Prop()
   created_by: string;
+
+  @Prop()
+  image?:string;
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);

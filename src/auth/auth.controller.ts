@@ -1,10 +1,9 @@
-
-import { Controller, Post, Body, UseGuards, HttpException, Req, Get } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req, Get, HttpException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dto/register.dto';
 import { AuthPayloadDto } from './dto/auth.dto';
-import { LocalGuard } from 'src/guards/loacl.guard';
-import { JwtAuthGaurd } from 'src/guards/jwt.guard';
+import { LocalGuard } from 'src/guards/local.guard';
+import { JwtAuthGuard } from '../guards/jwt.guard'; 
 import { Request } from 'express';
 
 @Controller('auth')
@@ -12,7 +11,7 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('register')
-  async register(@Body() payload: RegisterUserDto) {  
+  async register(@Body() payload: RegisterUserDto) {
     const user = await this.authService.register(payload);
     return { message: 'User registered successfully', user };
   }
@@ -21,21 +20,25 @@ export class AuthController {
   @UseGuards(LocalGuard)
   async login(@Body() authPayload: AuthPayloadDto) {
     const user = await this.authService.validateUser(authPayload);
-    if (!user) {
-      throw new HttpException('Invalid credentials', 401);
-    }
+    if (!user) throw new HttpException('Invalid credentials', 401);
     return this.authService.login(user);
   }
 
   @Get('status')
-  @UseGuards(JwtAuthGaurd)
+  @UseGuards(JwtAuthGuard) 
   status(@Req() req: Request) {
     return { user: req.user };
   }
 
-  @Post('logout')
-  @UseGuards(JwtAuthGaurd)
-  logout(@Req() req: Request) {
-    return { message: 'Logged out successfully.' };
+  @Post('refresh')
+  async refresh(@Body('refreshToken') refreshToken: string) {
+    return this.authService.refreshToken(refreshToken);
   }
+
+  @Post('logout')
+  @UseGuards(JwtAuthGuard)
+  async logout(@Req() req: Request) {
+  const user = req.user as { sub: string; username: string; tokenId: string };
+  return this.authService.logout(user.sub);
+}
 }

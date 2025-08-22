@@ -8,5 +8,6 @@ import { CommentController } from './comment.controller';
   imports: [MongooseModule.forFeature([{ name: Comment.name, schema: CommentSchema }])],
   controllers: [CommentController],
   providers: [CommentService],
+  exports: [CommentService],
 })
 export class CommentModule {}

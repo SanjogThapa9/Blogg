@@ -13,6 +13,9 @@ export class Rating {
 
   @Prop({ type: Types.ObjectId, ref: 'Post', required: true })
   post_id: Types.ObjectId;
+
+  @Prop({ type: Types.ObjectId, ref: 'Rating', default: null }) 
+  parent_id: Types.ObjectId | null;;
 }
 
 export const RatingSchema = SchemaFactory.createForClass(Rating);
